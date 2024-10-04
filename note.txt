@@ -1,0 +1,6 @@
+1. Create index.php and style.css
+2. Create screenshot.png with dimension of 1200(W) x 900(H)
+3. In wp-config set wp_debug to true
+4. Install plugin theme-check (themeforest-check optional) 
+5. Download Dummy Content from https://learn.wordpress.org/lesson-plan/how-to-add-demo-content-in-wordpress/, https://codex.wordpress.org/Theme_Unit_Test, https://raw.githubusercontent.com/WPTT/theme-unit-test/master/themeunittestdata.wordpress.xml
+6. Import the dummy content form tools -> import, first install wordpress then run importer and select the download xml file to import and select download and import file attachments
