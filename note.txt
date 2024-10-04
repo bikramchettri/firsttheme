@@ -4,3 +4,7 @@
 4. Install plugin theme-check (themeforest-check optional) 
 5. Download Dummy Content from https://learn.wordpress.org/lesson-plan/how-to-add-demo-content-in-wordpress/, https://codex.wordpress.org/Theme_Unit_Test, https://raw.githubusercontent.com/WPTT/theme-unit-test/master/themeunittestdata.wordpress.xml
 6. Import the dummy content form tools -> import, first install wordpress then run importer and select the download xml file to import and select download and import file attachments
+7. Templates --> Templates Files, Templates Tags, Templates Hierarchy, Page Templates
+8. header.php(get_header()), footer.php(get_footer()), sidebar.php(get_sidebar())
+9. <html lang="en"> dynamic language language_attributes(); and charset is bloginfo('charset')
+10. Title Tag and other stuff --> wp_head()
