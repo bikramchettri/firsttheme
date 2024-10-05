@@ -8,3 +8,87 @@
 8. header.php(get_header()), footer.php(get_footer()), sidebar.php(get_sidebar())
 9. <html lang="en"> dynamic language language_attributes(); and charset is bloginfo('charset')
 10. Title Tag and other stuff --> wp_head()
+11. The loop
+12. https://codex.wordpress.org/Formatting_Date_and_Time, get_the_date('') format l, F, j, Y
+l = Full name for day of the week (lower-case L).
+F = Full name for the month.
+j = The day of the month.
+Y = The year in 4 digits. (lower-case y gives the year’s last 2 digits)
+c = ISO 8601 2004-02-12T15:19:21+00:00
+By default get_the_date() function returns the date that user has selected in admin dashboard 
+<time datetime="<?php echo get_the_date('c'); ?>"><?php echo get_the_date('l,F j,Y'); ?></time>
+13. For pagination <?php the_posts_pagination(); ?>
+
+if(have_posts()) {
+    while(have_posts()) {
+        the_post();
+        the_title();
+    }
+} else {
+    echo 'not found';
+}
+
+$the_query = new WP_Query(array(array 'cat' => 4));
+
+if($the_query->have_posts()) {
+    while($the_query->have_posts()) {
+        $the_query->the_post();
+        echo '<li>' . get_the_title() . '</li>;
+    }
+} else {
+    echo 'not found';
+}
+
+Global object
+<?php var_dump($wp_query); ?>
+
+13. Template Hierarchy
+example.com/blog/category/unicorns
+category-unicorns.php
+category-4.php
+category.php
+archive.php
+index.php
+
+Understanding the loop
+http://example.com/category/unicorns
+$wp_query = new WP_Query(array('category_name'=>'unicorns));
+ 
+function have_posts() {
+    global $wp_query;
+    return $wp_query->have_posts();
+}
+
+wp_reset_postdata();
+To set the global post object back to the original post.
+
+Translate
+<?php
+$comments = 1;
+
+echo _n('One comment', '%s comments', $comments, 'firsttheme');
+printf(_n('One comment', '%s comments', $comments, 'firsttheme'), $comments);
+_x('Post', 'noun', 'firsttheme');
+_ex('Post', 'noun', 'firsttheme');
+printf('this post has %s comments', $comments);
+
+?>
+
+<?php
+$city = 'london';
+//wrong way of translating
+echo esc_html__('Your city is ', 'firsttheme') . $city;
+
+printf(esc_html__('Your city is %s', 'firsttheme'), $city);
+?>
+
+<?php
+$city = 'london';
+echo esc_html__('Your city is ', 'firsttheme') . $city;
+
+printf(
+    /*translators: %s is the city name*/
+    esc_html__('Your city is %s', 'firsttheme'),
+    $city
+);
+?>
