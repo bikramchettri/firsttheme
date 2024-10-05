@@ -1,3 +1,4 @@
+import path from "path";
 import gulp from "gulp";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
@@ -7,6 +8,8 @@ import cleanCSS from "gulp-clean-css";
 import gulpif from "gulp-if";
 import sourcemaps from "gulp-sourcemaps";
 import imagemin from "gulp-imagemin";
+import { deleteAsync } from "del";
+import webpack from "webpack-stream";
 
 const PRODUCTION = yargs(hideBin(process.argv)).argv.prod;
 
@@ -21,7 +24,25 @@ const paths = {
     src: "src/assets/images/**/*.{jpg,jpeg,png,svg,gif}",
     dest: "dist/assets/images",
   },
+  scripts: {
+    // Corrected here
+    src: ["src/assets/js/bundle.js", "src/assets/js/admin.js"],
+    dest: "dist/assets/js",
+  },
+  other: {
+    src: [
+      "src/assets/**/*",
+      "!src/assets/images/**",
+      "!src/assets/js/**",
+      "!src/assets/scss/**",
+      //   "!src/assets/{images,js,scss}",
+      //   "!src/assets/{images,js,scss}/**/*",
+    ],
+    dest: "dist/assets",
+  },
 };
+
+export const clean = () => deleteAsync(["dist"]);
 
 export const styles = () => {
   return gulp
@@ -45,4 +66,27 @@ export const images = () => {
 
 export const watch = () => {
   gulp.watch("src/assets/scss/**/**.scss", styles);
+  gulp.watch(paths.images.src, images);
+  gulp.watch(paths.other.src, copy);
 };
+
+export const copy = () => {
+  return gulp.src(paths.other.src).pipe(gulp.dest(paths.other.dest));
+};
+
+export const scripts = () => {
+  return gulp
+    .src(paths.scripts.src, { allowEmpty: true })
+    .pipe(webpack())
+    .pipe(gulp.dest(paths.scripts.dest));
+};
+
+export const dev = gulp.series(
+  clean,
+  gulp.parallel(styles, images, copy),
+  watch
+);
+
+export const build = gulp.series(clean, gulp.parallel(styles, images, copy));
+
+export default dev;
