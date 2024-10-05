@@ -92,3 +92,15 @@ printf(
     $city
 );
 ?>
+
+printf(
+        wp_kses(
+            __('Read More <script>alert("true");</script><span class="u-screen-reader-text">About %s</span>', 'firsttheme'),
+            [
+                'span' => [
+                    'class' => []
+                ]
+            ]
+        ),
+        get_the_title()
+    );
