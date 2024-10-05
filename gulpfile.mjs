@@ -120,7 +120,7 @@ export const watch = () => {
 };
 
 export const copy = () => {
-    return gulp.src(paths.other.src).pipe(gulp.dest(paths.other.dest));
+    return gulp.src(paths.other.src,{ encoding: false }).pipe(gulp.dest(paths.other.dest));
 };
 
 export const scripts = () => {
