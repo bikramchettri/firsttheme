@@ -11,10 +11,6 @@ import imagemin from 'gulp-imagemin';
 import { deleteAsync } from 'del';
 import webpack from 'webpack-stream';
 import uglify from 'gulp-uglify';
-import named from 'vinyl-named';
-import browserSync from 'browser-sync';
-
-const server = browserSync.create();
 
 const PRODUCTION = yargs(hideBin(process.argv)).argv.prod;
 
@@ -30,7 +26,6 @@ const paths = {
     dest: 'dist/assets/images',
   },
   scripts: {
-    // Corrected here
     src: ['src/assets/js/bundle.js', 'src/assets/js/admin.js'],
     dest: 'dist/assets/js',
   },
@@ -40,27 +35,14 @@ const paths = {
       '!src/assets/images/**',
       '!src/assets/js/**',
       '!src/assets/scss/**',
-      //   "!src/assets/{images,js,scss}",
-      //   "!src/assets/{images,js,scss}/**/*",
     ],
     dest: 'dist/assets',
   },
 };
 
-export const serve = (done) => {
-  server.init({
-    proxy: 'http://ala.test/',
-  });
-  done();
-};
-
-export const reload = (done) => {
-  server.reload();
-  done();
-};
-
 export const clean = () => deleteAsync(['dist']);
 
+// Styles task
 export const styles = () => {
   return gulp
     .src(paths.styles.src)
@@ -68,76 +50,77 @@ export const styles = () => {
     .pipe(sass().on('error', sass.logError))
     .pipe(gulpif(PRODUCTION, cleanCSS({ compatibility: 'ie8' })))
     .pipe(gulpif(!PRODUCTION, sourcemaps.write()))
-    .pipe(gulp.dest(paths.styles.dest))
-    .pipe(server.stream());
+    .pipe(gulp.dest(paths.styles.dest));
 };
 
+// Images task
 export const images = () => {
-  return (
-    gulp
-      // gulp imagemin breaking images and not optimizing, solve by , { encoding: false }
-      .src(paths.images.src, { encoding: false })
-      .pipe(gulpif(PRODUCTION, imagemin({ verbose: true })))
-      .pipe(gulp.dest(paths.images.dest))
-  );
+  return gulp
+    .src(paths.images.src, { encoding: false })
+    .pipe(gulpif(PRODUCTION, imagemin({ verbose: true })))
+    .pipe(gulp.dest(paths.images.dest));
 };
 
-export const watch = () => {
-  //   gulp.watch('src/assets/scss/**/*.scss', gulp.series(styles, reload));
-  gulp.watch('src/assets/scss/**/*.scss', styles);
-  gulp.watch('src/assets/js/**/*.js', gulp.series(scripts, reload));
-  gulp.watch('**/*.php', reload);
-  gulp.watch(paths.images.src, gulp.series(images, reload));
-  gulp.watch(paths.other.src, gulp.series(copy, reload));
-};
-
+// Copy task
 export const copy = () => {
   return gulp.src(paths.other.src).pipe(gulp.dest(paths.other.dest));
 };
 
+// Scripts task
 export const scripts = () => {
   return gulp
-    .src(paths.scripts.src)
-    .pipe(named())
+    .src(paths.scripts.src, { allowEmpty: true })
     .pipe(
       webpack({
+        mode: PRODUCTION ? 'production' : 'development',
+        entry: {
+          main: './src/assets/js/bundle.js',
+          admin: './src/assets/js/admin.js',
+        },
+        output: {
+          filename: '[name].js', // Output separate files for each entry
+          path: path.resolve(__dirname, 'dist/assets/js'),
+          clean: true, // Clean output directory before emit
+        },
         module: {
           rules: [
             {
               test: /\.js$/,
+              exclude: /node_modules/,
               use: {
                 loader: 'babel-loader',
                 options: {
-                  presets: ['@babel/preset-env'], //or ['babel-preset-env']
+                  presets: ['@babel/preset-env'],
                 },
               },
             },
           ],
         },
-        output: {
-          filename: '[name].js',
-        },
-        externals: {
-          jquery: 'jQuery',
-        },
         devtool: !PRODUCTION ? 'inline-source-map' : false,
-        mode: PRODUCTION ? 'production' : 'development', //add this
       })
     )
-    .pipe(gulpif(PRODUCTION, uglify())) //you can skip this now since mode will already minify
+    .pipe(gulpif(PRODUCTION, uglify())) // Optional, as mode already minimizes
     .pipe(gulp.dest(paths.scripts.dest));
 };
 
+// Watch task
+export const watch = () => {
+  gulp.watch(paths.styles.src, styles);
+  gulp.watch(paths.images.src, images);
+  gulp.watch(paths.other.src, copy);
+  gulp.watch(paths.scripts.src, scripts);
+};
+
+// Development and build tasks
 export const dev = gulp.series(
   clean,
-  gulp.parallel(styles, scripts, images, copy),
-  serve,
+  gulp.parallel(styles, images, copy, scripts),
   watch
 );
-
 export const build = gulp.series(
   clean,
-  gulp.parallel(styles, scripts, images, copy)
+  gulp.parallel(styles, images, copy, scripts)
 );
 
+// Default task
 export default dev;
