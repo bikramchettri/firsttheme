@@ -28,3 +28,7 @@ export const hello = (cb) => {
 };
 
 export default hello;
+
+Imagemin Problem
+The solution is to include , { encoding: false } in the image source -
+https://stackoverflow.com/questions/78730067/gulp-imagemin-breaking-images-and-not-optimizing
