@@ -1,0 +1,30 @@
+Setting Gulp
+https://gulpjs.com/docs/en/getting-started/quick-start/
+
+Install gulp-cli globally npm install --global gulp-cli
+Install the gulp package in your devDependencies -> npm install --save-dev gulp
+Check gulp version gulp --version
+After installation Create a file named gulpfile.js
+
+function defaultTask(cb) {
+    // place code for your default task here
+    console.log("hello");
+    cb();
+}
+
+function hello() {
+    console.log("jello");
+    cb();
+}
+
+exports.default = defaultTask;
+
+change gulpfile.js to gulpfile.mjs and set type: "module" in package.json
+import gulp from "gulp";
+
+export const hello = (cb) => {
+  console.log("hello");
+  cb();
+};
+
+export default hello;
